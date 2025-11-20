@@ -1,19 +1,38 @@
 /* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Leaf } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import InputField from '../../components/ui/InputField';
-import { Link } from 'react-router';
+import { Link, Navigate, useNavigate } from 'react-router';
+import AuthContext from '../../context/AuthContext';
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = () => {
+
+ const { signInWithEmail } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin({ name: 'John Doe', email });
+    signInWithEmail(email, password)
+      .then((userCredential) => {
+        // Signed in    
+        const user = userCredential.user;
+        if (user) {
+          navigate('/', { replace: true });
+        }
+        
+        
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.error('Error signing in:', errorCode, errorMessage);
+        alert('Failed to sign in. Please check your credentials and try again.');
+      });
   };
 
   return (

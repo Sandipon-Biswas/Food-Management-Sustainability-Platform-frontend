@@ -12,7 +12,6 @@ import InventoryPage from "../pages/InventoryPage";
 import LogsPage from "../pages/LogsPage";
 import ResourcesPage from "../pages/ResourcesPage";
 import ProfilePage from "../pages/ProfilePage";
-import { Upload } from "lucide-react";
 import UploadPage from "../pages/UploadPage";
 
 

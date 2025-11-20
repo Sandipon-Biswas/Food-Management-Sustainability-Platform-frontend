@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+/* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
 import { User, Camera, Save, DollarSign, Users } from 'lucide-react';
 import Card from '../components/ui/Card';

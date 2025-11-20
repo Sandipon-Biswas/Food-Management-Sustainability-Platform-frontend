@@ -1,5 +1,6 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+/* eslint-disable-next-line no-unused-vars */
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -18,14 +19,21 @@ import {
 } from "lucide-react";
 import AuthContext from "../../../context/AuthContext";
 
-const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
-  const {user} = useContext(AuthContext);
-  
+const Navbar = () => {
+  const { user, signOutUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // const handleLogout = () => {
-  //   localStorage.removeItem("authToken");
-  //   navigate("/login");
-  // };
+  const handleLogout = () => {
+    signOutUser()
+      .then(() => {
+        setMobileMenuOpen(false);
+        navigate("/", { replace: true });
+      })
+      .catch((error) => {
+        console.error("Error signing out:", error);
+      });
+  };
 
   const navItemsUser = [
     { to: "/", label: "Home", icon: Home },
@@ -79,7 +87,7 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
             {/* Logout Button */}
             {user && (
               <button
-                // onClick={handleLogout}
+                onClick={handleLogout}
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-700 hover:text-red-600 transition ml-4"
               >
                 <LogOut className="w-5 h-5" />
@@ -91,7 +99,7 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-gray-700"
+            className="md:hidden text-gray-700 p-2"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -105,39 +113,38 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t"
+            className="md:hidden border-t bg-white"
           >
-            {menuItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 w-full px-4 py-3 transition ${
-                    isActive
-                      ? "bg-green-100 text-green-700"
-                      : "text-gray-700 hover:bg-green-50 hover:text-green-600"
-                  }`
-                }
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {menuItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center space-x-3 w-full px-4 py-3 rounded-lg transition ${
+                      isActive
+                        ? "bg-green-100 text-green-700"
+                        : "text-gray-700 hover:bg-green-50 hover:text-green-600"
+                    }`
+                  }
+                >
+                  <item.icon className="w-5 h-5" />
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
 
-            {/* Logout Button */}
-            {user && (
-              <button
-                onClick={() => {
-                    
-                  setMobileMenuOpen(false);
-                }}
-                className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-red-50 text-red-600"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
-            )}
+              {/* Logout Button */}
+              {user && (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 w-full px-4 py-3 rounded-lg hover:bg-red-50 text-red-600 hover:text-red-700 transition"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

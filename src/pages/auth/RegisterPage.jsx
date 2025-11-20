@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+/* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
 import { Leaf } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +21,7 @@ const RegisterPage = () => {
     const [error, setError] = useState('');
 
     const validatePassword = (pwd) => {
-        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{6,}$/;
+        const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{6,}$/;
         
         if (!pwd) {
             setPasswordError('Password is required');
