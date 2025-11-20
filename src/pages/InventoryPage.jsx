@@ -8,6 +8,7 @@ import InputField from '../components/ui/InputField';
 import Modal from '../components/ui/Modal';
 
 const InventoryPage = () => {
+  
   const [items, setItems] = useState([
     { id: 1, name: 'Apples', category: 'Fruits', quantity: 5, expiry: '2025-11-25', status: 'good' },
     { id: 2, name: 'Milk', category: 'Dairy', quantity: 2, expiry: '2025-11-21', status: 'expiring' },
