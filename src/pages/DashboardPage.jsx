@@ -1,4 +1,4 @@
-import React from 'react';
+/* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
 import { Package, AlertCircle, TrendingUp, DollarSign, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';

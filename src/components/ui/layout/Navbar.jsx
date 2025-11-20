@@ -1,5 +1,5 @@
-import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -16,15 +16,16 @@ import {
   Leaf,
   LayoutDashboard,
 } from "lucide-react";
+import AuthContext from "../../../context/AuthContext";
 
 const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
-  const navigate = useNavigate();
-  const user = localStorage.getItem("authToken"); // check login state
+  const {user} = useContext(AuthContext);
+  
 
-  const handleLogout = () => {
-    localStorage.removeItem("authToken");
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("authToken");
+  //   navigate("/login");
+  // };
 
   const navItemsUser = [
     { to: "/", label: "Home", icon: Home },
@@ -49,10 +50,12 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate("/")}>
-            <Leaf className="w-8 h-8 text-green-600" />
-            <span className="text-xl font-bold text-gray-800">EcoFood</span>
-          </div>
+          <Link to="/">
+            <div className="flex items-center space-x-3 cursor-pointer">
+              <Leaf className="w-8 h-8 text-green-600" />
+              <span className="text-xl font-bold text-gray-800">EcoFood</span>
+            </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-1">
@@ -76,7 +79,7 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
             {/* Logout Button */}
             {user && (
               <button
-                onClick={handleLogout}
+                // onClick={handleLogout}
                 className="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-700 hover:text-red-600 transition ml-4"
               >
                 <LogOut className="w-5 h-5" />
@@ -126,7 +129,7 @@ const Navbar = ({ mobileMenuOpen, setMobileMenuOpen }) => {
             {user && (
               <button
                 onClick={() => {
-                  handleLogout();
+                    
                   setMobileMenuOpen(false);
                 }}
                 className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-red-50 text-red-600"
