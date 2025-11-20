@@ -11,7 +11,7 @@ const Footer = () => {
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
                                 <Leaf size={20} className="text-white" />
                             </div>
-                            <span className="font-bold text-xl">FreshFlow</span>
+                            <span className="font-bold text-xl">EcoFood</span>
                         </div>
                         <p className="text-gray-500 leading-relaxed mb-6">
                             Smart food management platform empowering individuals and businesses to build a sustainable future.

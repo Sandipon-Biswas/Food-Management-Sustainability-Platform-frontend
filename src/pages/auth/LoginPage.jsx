@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+/* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
+import React, { useState } from 'react';
 import { Leaf } from 'lucide-react';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import InputField from '../../components/ui/InputField';
+import { Link } from 'react-router';
 
-const LoginPage = ({ onLogin, onNavigate }) => {
+const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -49,13 +51,10 @@ const LoginPage = ({ onLogin, onNavigate }) => {
 
           <p className="text-center text-gray-600">
             Don't have an account?{' '}
-            <button
-              type="button"
-              onClick={() => onNavigate('register')}
-              className="text-green-600 hover:underline font-medium"
-            >
+            <Link to="/register" className="text-green-600 hover:underline font-medium">
               Register
-            </button>
+            </Link>
+           
           </p>
         </form>
       </Card>
