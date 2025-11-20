@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+/* eslint-disable-next-line no-unused-vars */
 import { motion } from 'framer-motion';
 import { Upload, Camera, FileText, X } from 'lucide-react';
 import Card from '../components/ui/Card';
@@ -9,6 +10,8 @@ const UploadPage = () => {
   const [preview, setPreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [uploadType, setUploadType] = useState('receipt');
+
+  const inputRef = useRef(null);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -31,7 +34,6 @@ const UploadPage = () => {
   };
 
   const handleChange = (e) => {
-    e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
@@ -90,20 +92,27 @@ const UploadPage = () => {
             }`}
           >
             <input
+              ref={inputRef}
               type="file"
               onChange={handleChange}
               accept="image/*"
               className="hidden"
               id="file-upload"
             />
-            <label htmlFor="file-upload" className="cursor-pointer">
+            <div className="cursor-pointer">
               <Upload className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <p className="text-lg font-medium text-gray-700 mb-2">
                 Drag and drop your image here
               </p>
               <p className="text-sm text-gray-500 mb-4">or click to browse</p>
-              <Button variant="outline" type="button">Select File</Button>
-            </label>
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => inputRef.current && inputRef.current.click()}
+              >
+                Select File
+              </Button>
+            </div>
           </div>
 
           {selectedFile && (
