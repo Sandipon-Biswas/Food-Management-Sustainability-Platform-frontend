@@ -67,7 +67,7 @@ const RegisterPage = () => {
         setLoading(true);
 
         try {
-            const userCredential = await createUserWithEmail(email, password);
+            const userCredential = await createUserWithEmail(email, password,name);
             const user = userCredential.user;
             
             console.log('User registered:', user);

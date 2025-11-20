@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+/* eslint-disable-next-line no-unused-vars */
 import { motion } from "framer-motion";
 import { ArrowRight, Leaf, Zap, Target, Users, Menu, X } from "lucide-react";
 import { Link } from "react-router";
@@ -46,7 +47,7 @@ const Card = ({ children, hoverable = false, className = "" }) => {
 };
 
 const Home = () => {
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    
 
     const containerVariants = {
         hidden: { opacity: 0 },

@@ -34,6 +34,8 @@ const Navbar = () => {
         console.error("Error signing out:", error);
       });
   };
+  
+  
 
   const navItemsUser = [
     { to: "/", label: "Home", icon: Home },
@@ -42,7 +44,7 @@ const Navbar = () => {
     { to: "/inventory", label: "Inventory", icon: Package },
     { to: "/resources", label: "Resources", icon: BookOpen },
     { to: "/upload", label: "Upload", icon: Upload },
-    { to: "/profile", label: "Profile", icon: User },
+    { to: "/profile", label: user?.displayName, icon: User },
   ];
 
   const navItemsGuest = [

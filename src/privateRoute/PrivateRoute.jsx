@@ -5,10 +5,6 @@ import AuthContext from '../context/AuthContext';
 
 const PrivateRoute = ({children}) => {
     const { user, loading } = React.useContext(AuthContext);
-    console.log(user,loading);
-    
-    
-    
     
     if(loading){
         return <div>Loading...</div>
