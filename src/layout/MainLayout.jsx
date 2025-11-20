@@ -6,6 +6,7 @@ import Footer from "../components/ui/layout/Footer";
 const MainLayout = () => {
     return (
         <div>
+            {/* navbar */}
             <Navbar/>
             <div>
                 {/* Outlet for nested routes */}
