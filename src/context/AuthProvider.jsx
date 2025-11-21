@@ -25,10 +25,18 @@ const AuthProvider = ({ children }) => {
         return signInWithEmailAndPassword(auth,email,password)
     }
 
-    const signOutUser = () => {
-        setLoading(true)
-        return signOut(auth)
-    }
+   const signOutUser = () => {
+     // Remove token & user data from localStorage
+     localStorage.removeItem("token");
+     localStorage.removeItem("user");
+
+     // Make user empty
+     setUser(null);
+
+     // Optional: you can force refresh if needed
+     // window.location.reload();
+   };
+
 
     useEffect(() => {
        const unsubscribe= onAuthStateChanged(auth, (loggedUser) => {
@@ -46,7 +54,7 @@ const AuthProvider = ({ children }) => {
         loading,
         createUserWithEmail,
         signInWithEmail,
-        signOutUser
+        signOutUser,setUser
     }
 
     return (

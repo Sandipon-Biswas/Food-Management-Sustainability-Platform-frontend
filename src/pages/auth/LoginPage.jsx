@@ -1,38 +1,58 @@
 /* eslint-disable-next-line no-unused-vars */
-import { motion } from 'framer-motion';
-import React, { useContext, useState } from 'react';
-import { Leaf } from 'lucide-react';
-import Card from '../../components/ui/Card';
-import Button from '../../components/ui/Button';
-import InputField from '../../components/ui/InputField';
-import { Link, Navigate, useNavigate } from 'react-router';
-import AuthContext from '../../context/AuthContext';
+import { motion } from "framer-motion";
+import React, { use, useState } from "react";
+import { Leaf } from "lucide-react";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
+import InputField from "../../components/ui/InputField";
+import { Link, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../../api";
+import AuthContext from "../../context/AuthContext";
+
+
+// 🔥 Base URL আলাদা করে রাখা হলো
+
 
 const LoginPage = () => {
-
- const { signInWithEmail } = useContext(AuthContext);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { setUser }=use(AuthContext);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    signInWithEmail(email, password)
-      .then((userCredential) => {
-        // Signed in    
-        const user = userCredential.user;
-        if (user) {
-          navigate('/', { replace: true });
-        }
-        
-        
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.error('Error signing in:', errorCode, errorMessage);
-        alert('Failed to sign in. Please check your credentials and try again.');
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${BASE_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
       });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Invalid credentials");
+      }
+
+      // Save JWT token
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      
+      setUser(data.user);
+      alert("Login Successful!");
+
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error("Login error:", err);
+      alert(err.message || "Failed to login");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -44,7 +64,9 @@ const LoginPage = () => {
       <Card className="w-full max-w-md">
         <div className="text-center mb-8">
           <Leaf className="w-16 h-16 text-green-600 mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome Back
+          </h1>
           <p className="text-gray-600">Sign in to your EcoFood account</p>
         </div>
 
@@ -55,6 +77,7 @@ const LoginPage = () => {
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <InputField
             label="Password"
@@ -62,18 +85,21 @@ const LoginPage = () => {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
 
-          <Button type="submit" className="w-full mb-4">
-            Sign In
+          <Button type="submit" className="w-full mb-4" disabled={loading}>
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
 
           <p className="text-center text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-green-600 hover:underline font-medium">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="text-green-600 hover:underline font-medium"
+            >
               Register
             </Link>
-           
           </p>
         </form>
       </Card>

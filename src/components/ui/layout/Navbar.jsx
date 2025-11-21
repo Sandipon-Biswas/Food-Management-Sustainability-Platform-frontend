@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-/* eslint-disable-next-line no-unused-vars */
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
@@ -17,26 +16,48 @@ import {
   Leaf,
   LayoutDashboard,
 } from "lucide-react";
-import AuthContext from "../../../context/AuthContext";
 
 const Navbar = () => {
-  const { user, signOutUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Function to read user from localStorage
+  const checkUser = () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const storedUser = JSON.parse(localStorage.getItem("user"));
+      setUser(storedUser);
+    } else {
+      setUser(null);
+    }
+  };
+
+  // Run on mount and setup storage listener & interval
+  useEffect(() => {
+    checkUser(); // initial check
+
+    // Listen for storage changes (multi-tab)
+    window.addEventListener("storage", checkUser);
+
+    // Interval for same-tab login updates
+    const interval = setInterval(checkUser, 500);
+
+    return () => {
+      window.removeEventListener("storage", checkUser);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleLogout = () => {
-    signOutUser()
-      .then(() => {
-        setMobileMenuOpen(false);
-        navigate("/", { replace: true });
-      })
-      .catch((error) => {
-        console.error("Error signing out:", error);
-      });
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null); // update state immediately
+    setMobileMenuOpen(false);
+    navigate("/", { replace: true });
   };
-  
-  
 
+  // Menu items
   const navItemsUser = [
     { to: "/", label: "Home", icon: Home },
     { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -44,7 +65,7 @@ const Navbar = () => {
     { to: "/inventory", label: "Inventory", icon: Package },
     { to: "/resources", label: "Resources", icon: BookOpen },
     { to: "/upload", label: "Upload", icon: Upload },
-    { to: "/profile", label: user?.displayName, icon: User },
+    { to: "/profile", label: user?.name || "Profile", icon: User },
   ];
 
   const navItemsGuest = [
@@ -67,7 +88,7 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-1">
             {menuItems.map((item) => (
               <NavLink
@@ -86,7 +107,6 @@ const Navbar = () => {
               </NavLink>
             ))}
 
-            {/* Logout Button */}
             {user && (
               <button
                 onClick={handleLogout}
@@ -103,12 +123,16 @@ const Navbar = () => {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden text-gray-700 p-2"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -136,7 +160,6 @@ const Navbar = () => {
                 </NavLink>
               ))}
 
-              {/* Logout Button */}
               {user && (
                 <button
                   onClick={handleLogout}

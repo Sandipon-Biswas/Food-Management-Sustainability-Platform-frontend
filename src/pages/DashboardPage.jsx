@@ -1,33 +1,110 @@
 /* eslint-disable-next-line no-unused-vars */
-import { motion } from 'framer-motion';
-import { Package, AlertCircle, TrendingUp, DollarSign, ChevronRight } from 'lucide-react';
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import Card from '../components/ui/Card';
+import { motion } from "framer-motion";
+import {
+  Package,
+  AlertCircle,
+  TrendingUp,
+  DollarSign,
+  ChevronRight,
+} from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import Card from "../components/ui/Card";
+import { useEffect, useState } from "react";
+import { BASE_URL } from "../api";
 
 const DashboardPage = () => {
+  const [loading, setLoading] = useState(true);
+  const [dashboard, setDashboard] = useState(null);
+
+  // Fetch Dashboard Data
+  const fetchDashboard = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${BASE_URL}/dashboard`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to load dashboard");
+
+      setDashboard(data);
+      console.log(data)
+    } catch (err) {
+      console.error("Dashboard Error:", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center py-20 text-xl font-semibold text-gray-700">
+        Loading Dashboard...
+      </div>
+    );
+  }
+
+  if (!dashboard) {
+    return (
+      <div className="text-center py-20 text-xl font-semibold text-red-600">
+        Failed to load dashboard data.
+      </div>
+    );
+  }
+
+  // Extract API data
+  const { profile, inventorySummary, recentLogs } = dashboard;
+
   const stats = [
-    { label: 'Total Items', value: '42', icon: Package, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Expiring Soon', value: '5', icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-100' },
-    { label: 'Items Used', value: '127', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100' },
-    { label: 'Money Saved', value: '$342', icon: DollarSign, color: 'text-purple-600', bg: 'bg-purple-100' },
-  ];
-
-  const consumptionData = [
-    { day: 'Mon', items: 5 },
-    { day: 'Tue', items: 8 },
-    { day: 'Wed', items: 6 },
-    { day: 'Thu', items: 9 },
-    { day: 'Fri', items: 7 },
-    { day: 'Sat', items: 10 },
-    { day: 'Sun', items: 6 },
-  ];
-
-  const categoryData = [
-    { name: 'Vegetables', value: 30, color: '#10b981' },
-    { name: 'Fruits', value: 25, color: '#f59e0b' },
-    { name: 'Dairy', value: 20, color: '#3b82f6' },
-    { name: 'Grains', value: 15, color: '#8b5cf6' },
-    { name: 'Others', value: 10, color: '#6b7280' },
+    {
+      label: "Total Items",
+      value: inventorySummary.totalItems || 0,
+      icon: Package,
+      color: "text-blue-600",
+      bg: "bg-blue-100",
+    },
+    {
+      label: "Expiring Soon",
+      value: inventorySummary.expiringSoon || 0,
+      icon: AlertCircle,
+      color: "text-orange-600",
+      bg: "bg-orange-100",
+    },
+    {
+      label: "Items Used",
+      value: 0,
+      icon: TrendingUp,
+      color: "text-green-600",
+      bg: "bg-green-100",
+    }, // API nai, 0 rakhlam
+    {
+      label: "Money Saved",
+      value: "$0",
+      icon: DollarSign,
+      color: "text-purple-600",
+      bg: "bg-purple-100",
+    }, // optional
   ];
 
   return (
@@ -39,7 +116,9 @@ const DashboardPage = () => {
     >
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Welcome back! Here's your food sustainability overview.</p>
+        <p className="text-gray-600">
+          Welcome {profile?.name}! Here's your overview.
+        </p>
       </div>
 
       {/* Stats Grid */}
@@ -59,59 +138,29 @@ const DashboardPage = () => {
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card>
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Weekly Consumption</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={consumptionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="items" fill="#10b981" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card>
-          <h3 className="text-xl font-bold text-gray-800 mb-4">Category Distribution</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={categoryData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {categoryData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-      </div>
-
       {/* Recent Activity */}
       <Card>
-        <h3 className="text-xl font-bold text-gray-800 mb-4">Recent Activity</h3>
+        <h3 className="text-xl font-bold text-gray-800 mb-4">
+          Recent Activity
+        </h3>
+
+        {recentLogs.length === 0 && (
+          <p className="text-gray-500">No recent logs available.</p>
+        )}
+
         <div className="space-y-3">
-          {['Added 3 apples to inventory', 'Logged consumption: 2 eggs', 'Item expired: Milk (500ml)', 'Budget alert: 75% spent'].map((activity, index) => (
+          {recentLogs.map((log, index) => (
             <motion.div
-              key={index}
+              key={log._id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
               className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
             >
               <ChevronRight className="w-5 h-5 text-green-600" />
-              <span className="text-gray-700">{activity}</span>
+              <span className="text-gray-700">
+                {log.itemName} ({log.category}) — {log.quantity} pcs
+              </span>
             </motion.div>
           ))}
         </div>
