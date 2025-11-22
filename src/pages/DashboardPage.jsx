@@ -1,169 +1,216 @@
-/* eslint-disable-next-line no-unused-vars */
 import { motion } from "framer-motion";
-import {
-  Package,
-  AlertCircle,
-  TrendingUp,
-  DollarSign,
-  ChevronRight,
-} from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import Card from "../components/ui/Card";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import Card from "../components/ui/Card";
 import { BASE_URL } from "../api";
 
 const DashboardPage = () => {
   const [loading, setLoading] = useState(true);
   const [dashboard, setDashboard] = useState(null);
 
-  // Fetch Dashboard Data
-  const fetchDashboard = async () => {
+  const [foodItems, setFoodItems] = useState([]);
+  const [newItem, setNewItem] = useState({
+    name: "",
+    category: "",
+    expirationDays: 1,
+    costPerUnit: 1,
+  });
+
+  const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await fetch(`${BASE_URL}/dashboard`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      // Dashboard API
+      const resDashboard = await fetch(`${BASE_URL}/dashboard`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      const dashData = await resDashboard.json();
 
-      const data = await res.json();
+      // Food Items API
+      const resItems = await fetch(`${BASE_URL}/food-items`);
+      const itemsData = await resItems.json();
 
-      if (!res.ok) throw new Error(data.message || "Failed to load dashboard");
-
-      setDashboard(data);
-      console.log(data)
+      setDashboard(dashData);
+      setFoodItems(itemsData);
     } catch (err) {
-      console.error("Dashboard Error:", err);
-      alert(err.message);
+      console.log(err);
+      alert("Failed to load data");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDashboard();
+    fetchData();
   }, []);
 
-  if (loading) {
+  const createFoodItem = async () => {
+    if (!newItem.name || !newItem.category)
+      return alert("Name and category required");
+    if (newItem.expirationDays < 1) return alert("Expiration days must be ≥ 1");
+    if (newItem.costPerUnit < 1) return alert("Cost per unit must be ≥ 1");
+
+    try {
+      const res = await fetch(`${BASE_URL}/food-items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newItem),
+      });
+
+      const data = await res.json();
+      if (!res.ok) return alert(data.message);
+
+      setNewItem({ name: "", category: "", expirationDays: 1, costPerUnit: 1 });
+      fetchData();
+      alert("Food item added!");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const deleteFoodItem = async (id) => {
+    try {
+      const res = await fetch(`${BASE_URL}/food-items/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) return alert("Delete failed");
+
+      fetchData();
+      alert("Food item deleted!");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  if (loading || !dashboard)
     return (
       <div className="text-center py-20 text-xl font-semibold text-gray-700">
         Loading Dashboard...
       </div>
     );
-  }
 
-  if (!dashboard) {
-    return (
-      <div className="text-center py-20 text-xl font-semibold text-red-600">
-        Failed to load dashboard data.
-      </div>
-    );
-  }
-
-  // Extract API data
-  const { profile, inventorySummary, recentLogs } = dashboard;
-
-  const stats = [
-    {
-      label: "Total Items",
-      value: inventorySummary.totalItems || 0,
-      icon: Package,
-      color: "text-blue-600",
-      bg: "bg-blue-100",
-    },
-    {
-      label: "Expiring Soon",
-      value: inventorySummary.expiringSoon || 0,
-      icon: AlertCircle,
-      color: "text-orange-600",
-      bg: "bg-orange-100",
-    },
-    {
-      label: "Items Used",
-      value: 0,
-      icon: TrendingUp,
-      color: "text-green-600",
-      bg: "bg-green-100",
-    }, // API nai, 0 rakhlam
-    {
-      label: "Money Saved",
-      value: "$0",
-      icon: DollarSign,
-      color: "text-purple-600",
-      bg: "bg-purple-100",
-    }, // optional
-  ];
+  const { profile, inventorySummary } = dashboard;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8"
     >
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
-        <p className="text-gray-600">
-          Welcome {profile?.name}! Here's your overview.
-        </p>
+      <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+      <p className="text-gray-600">Welcome {profile?.name}!</p>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 my-8">
+        <Card>
+          <p className="text-sm text-gray-500">Total Items</p>
+          <p className="text-3xl font-bold">{inventorySummary.totalItems}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-gray-500">Expiring Soon</p>
+          <p className="text-3xl font-bold">{inventorySummary.expiringSoon}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-gray-500">Items Used</p>
+          <p className="text-3xl font-bold">0</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-gray-500">Money Saved</p>
+          <p className="text-3xl font-bold">$0</p>
+        </Card>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
-          <Card key={index} hover={true}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm mb-1">{stat.label}</p>
-                <p className="text-3xl font-bold text-gray-800">{stat.value}</p>
-              </div>
-              <div className={`${stat.bg} p-3 rounded-lg`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+      {/* Food Items */}
+      <Card className="mb-10">
+        <h2 className="text-xl font-bold mb-4">Food Items</h2>
 
-      {/* Recent Activity */}
-      <Card>
-        <h3 className="text-xl font-bold text-gray-800 mb-4">
-          Recent Activity
-        </h3>
+        {/* Add Form */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 mb-4">
+          <div className="flex flex-col">
+            <p className="text-gray-600 text-sm mb-1">Name</p>
+            <input
+              className="border p-2 rounded"
+              type="text"
+              value={newItem.name}
+              onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+              placeholder="Enter name"
+            />
+          </div>
 
-        {recentLogs.length === 0 && (
-          <p className="text-gray-500">No recent logs available.</p>
+          <div className="flex flex-col">
+            <p className="text-gray-600 text-sm mb-1">Category</p>
+            <input
+              className="border p-2 rounded"
+              type="text"
+              value={newItem.category}
+              onChange={(e) =>
+                setNewItem({ ...newItem, category: e.target.value })
+              }
+              placeholder="Enter category"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <p className="text-gray-600 text-sm mb-1">Expiring day</p>
+            <input
+              className="border p-2 rounded"
+              type="number"
+              min={1}
+              value={newItem.expirationDays}
+              onChange={(e) =>
+                setNewItem({
+                  ...newItem,
+                  expirationDays: Number(e.target.value),
+                })
+              }
+              placeholder="Expiring day"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <p className="text-gray-600 text-sm mb-1">Price ($)</p>
+            <input
+              className="border p-2 rounded"
+              type="number"
+              min={1}
+              value={newItem.costPerUnit}
+              onChange={(e) =>
+                setNewItem({ ...newItem, costPerUnit: Number(e.target.value) })
+              }
+              placeholder="Enter price"
+            />
+          </div>
+
+          <div className="flex items-end">
+            <button
+              onClick={createFoodItem}
+              className="bg-blue-600 text-white px-4 py-2 rounded font-semibold w-full"
+            >
+              Add
+            </button>
+          </div>
+        </div>
+
+        {/* Items List */}
+        {foodItems.length === 0 && (
+          <p className="text-gray-500">No items found.</p>
         )}
 
-        <div className="space-y-3">
-          {recentLogs.map((log, index) => (
-            <motion.div
-              key={log._id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
-            >
-              <ChevronRight className="w-5 h-5 text-green-600" />
-              <span className="text-gray-700">
-                {log.itemName} ({log.category}) — {log.quantity} pcs
-              </span>
-            </motion.div>
-          ))}
-        </div>
+        {foodItems.map((item) => (
+          <div
+            key={item._id}
+            className="flex justify-between items-center bg-gray-50 p-3 rounded mb-2"
+          >
+            <span>
+              {item.name} ({item.category}) — {item.expirationDays} days | $
+              {item.costPerUnit}
+            </span>
+            <Trash2
+              onClick={() => deleteFoodItem(item._id)}
+              className="w-5 h-5 text-red-600 cursor-pointer"
+            />
+          </div>
+        ))}
       </Card>
     </motion.div>
   );

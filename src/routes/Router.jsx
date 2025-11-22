@@ -10,6 +10,7 @@ import ResourcesPage from "../pages/ResourcesPage";
 import ProfilePage from "../pages/ProfilePage";
 import UploadPage from "../pages/UploadPage";
 import ProtectedRoute from "../privateRoute/ProtectedRoute"; // new
+import EchoFoodAiModel from "../pages/EchoFoodAiModel";
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
         ),
       },
     ],
+  },
+  {
+    path:"echofoodai",
+    Component:EchoFoodAiModel
   },
 ]);
 

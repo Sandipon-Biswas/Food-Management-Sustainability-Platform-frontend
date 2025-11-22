@@ -15,7 +15,9 @@ import {
   X,
   Leaf,
   LayoutDashboard,
+  
 } from "lucide-react";
+import { div, h1 } from "framer-motion/client";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -65,8 +67,11 @@ const Navbar = () => {
     { to: "/inventory", label: "Inventory", icon: Package },
     { to: "/resources", label: "Resources", icon: BookOpen },
     { to: "/upload", label: "Upload", icon: Upload },
+    // { to: "/echofoodai", label: "EchoFoodAi", icon:Leaf },
     { to: "/profile", label: user?.name || "Profile", icon: User },
   ];
+
+  
 
   const navItemsGuest = [
     { to: "/", label: "Home", icon: Home },

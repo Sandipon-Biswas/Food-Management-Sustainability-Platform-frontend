@@ -68,6 +68,11 @@ const LoginPage = () => {
             Welcome Back
           </h1>
           <p className="text-gray-600">Sign in to your EcoFood account</p>
+          <p className="text-gray-600 text-sm">
+            Demo Credentials: <br />
+            Email: <span className="font-semibold">a@gmail.com</span> <br />
+            Password: <span className="font-semibold">123456</span>
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
